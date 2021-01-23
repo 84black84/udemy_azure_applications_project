@@ -42,7 +42,6 @@ def new_post():
         form=form
     )
 
-
 @app.route('/post/<int:id>', methods=['GET', 'POST'])
 @login_required
 def post(id):
@@ -67,8 +66,10 @@ def login():
         user = User.query.filter_by(username=form.username.data).first()
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password')
+            app.logger.warning(f"The user with username: '{user.username}' has unsuccesfully tried to log in.")
             return redirect(url_for('login'))
         login_user(user, remember=form.remember_me.data)
+        app.logger.info(f"The user with username: '{user.username}' has been succesfully logged in.")
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('home')
